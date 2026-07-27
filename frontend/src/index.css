@@ -2,112 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Kenza Health Custom Design System */
+/* Kenza Health - Modern Tasky UI System */
 :root {
   --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
-  --surface-1: #ffffff;
-  --surface-2: #fafafa;
-  --border: #eaeaea;
+  --surface-1: #ffffff; /* Pure white for sidebar, topbar, and cards */
+  --surface-2: #f8f9fa; /* Tasky's distinct light-gray canvas */
+  --border: #f0f0f0;
   --text-primary: #111111;
   --text-secondary: #555555;
   --text-muted: #888888;
+  --accent: #FFD600; /* Tasky Yellow */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* i remove the padding and margin so the body touch the edges of the screen directly */
-body { font-family: var(--font-sans); background: #f5f5f3; padding: 0; margin: 0; overflow: hidden; }
-
-/* i added this because vite create a hidden div called root. we have to force it to take 100% of the screen otherwise it block our design */
+body { font-family: var(--font-sans); background: var(--surface-1); padding: 0; margin: 0; overflow: hidden; }
 #root { width: 100%; height: 100vh; margin: 0; padding: 0; display: flex; }
 
-/* no more border radius or border lines. we want it to stretch everywhere like a real dashboard, not a small card */
-.wrap { display: flex; height: 100%; width: 100%; background: #f5f5f3; border-radius: 0; border: none; overflow: hidden; }
+/* The wrapper is now pure white to blend with the sidebar and topbar */
+.wrap { display: flex; height: 100%; width: 100%; background: var(--surface-1); }
 
-/* this is the main background of the dashboard. i set it to a light gray so the white panels will pop out well */
-.content { flex: 1; overflow-y: auto; padding: 24px 32px; background: #f5f5f3; }
+/* --- SIDEBAR --- */
+.sidebar { width: 260px; background: var(--surface-1); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+.logo { padding: 10px 30px 30px; }
+.logo-text { font-size: 26px; font-weight: 800; color: #111111; letter-spacing: -0.5px; }
+.logo-text span { color: var(--accent); }
 
-/* Updated White Sidebar */
-.sidebar { width: 220px; background: #ffffff; display: flex; flex-direction: column; padding: 0; flex-shrink: 0; border-right: 0.5px solid var(--border); }
-.logo { padding: 20px 20px 16px; border-bottom: 0.5px solid var(--border); }
-.logo-text { font-size: 20px; font-weight: 700; color: #111111; letter-spacing: -0.5px; }
-.logo-text span { color: #FFD600; }
-.nav { padding: 12px 0; flex: 1; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; }
-.nav-item:hover { color: #111; background: #f5f5f3; }
-.nav-item.active { color: #111; background: #FFD600; margin: 0 12px; border-radius: 8px; padding: 10px 12px; }
-.nav-item i { font-size: 16px; }
-.sidebar-bottom { padding: 16px 20px; border-top: 0.5px solid var(--border); }
-.chw-info { display: flex; align-items: center; gap: 10px; }
-.chw-avatar { width: 32px; height: 32px; border-radius: 50%; background: #FFD600; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #111; }
-.chw-name { font-size: 12px; color: #111111; font-weight: 500; }
-.chw-role { font-size: 11px; color: var(--text-secondary); }
+.nav { padding: 10px 0; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 16px; padding: 14px 30px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.nav-item:hover { color: #111; }
 
-/* The rest of the main layout */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--surface-1); border-bottom: 0.5px solid var(--border); }
+/* Tasky's signature black pill for the active menu */
+.nav-item.active { color: #fff; background: #111111; margin: 0 20px; border-radius: 16px; padding: 14px 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.nav-item.active i { color: var(--accent); }
+.nav-item i { font-size: 20px; }
+
+/* Bottom profile area */
+.sidebar-bottom { padding: 20px 30px; }
+.chw-info { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; }
+.chw-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #111; }
+.chw-name { font-size: 13px; color: #111; font-weight: 600; }
+.chw-role { font-size: 11px; color: var(--text-muted); }
+
+/* --- MAIN LAYOUT & TOPBAR --- */
+/* Main is white so the gray content box can contrast against it */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface-1); }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: var(--surface-1); }
 .topbar-left { display: flex; flex-direction: column; }
-.topbar-title { font-size: 18px; font-weight: 500; color: var(--text-primary); }
-.topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.topbar-right { display: flex; align-items: center; gap: 16px; }
-.search { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 12px; }
-.search input { border: none; background: transparent; font-size: 13px; color: var(--text-primary); outline: none; width: 140px; }
-.search i { font-size: 15px; color: var(--text-muted); }
-.notif { position: relative; cursor: pointer; }
-.notif i { font-size: 18px; color: var(--text-secondary); }
-.badge { position: absolute; top: -4px; right: -4px; background: #FFD600; color: #111; font-size: 9px; font-weight: 700; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.topbar-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+.topbar-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 
-/* Grids & Cards */
-.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-.s-card { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-.s-card-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.topbar-right { display: flex; align-items: center; gap: 24px; }
+/* Tasky style search pill */
+.search { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 12px; padding: 12px 16px; width: 300px; }
+.search input { border: none; background: transparent; font-size: 13px; color: var(--text-primary); outline: none; width: 100%; }
+.search i { font-size: 18px; color: var(--text-muted); }
+
+.notif { position: relative; cursor: pointer; background: var(--surface-2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.notif i { font-size: 20px; color: var(--text-primary); }
+.badge { position: absolute; top: -2px; right: -2px; background: var(--accent); color: #111; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+/* --- CONTENT CANVAS --- */
+/* The distinct rounded gray background that wraps the dashboard content */
+.content { flex: 1; overflow-y: auto; padding: 40px; background: var(--surface-2); border-top-left-radius: 40px; }
+
+/* --- CARDS & PANELS --- */
+/* Removed harsh borders, added massive border-radius and soft drop shadows */
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+.s-card { background: var(--surface-1); border: none; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+.s-card-label { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 20px; }
 .s-card-row { display: flex; align-items: center; justify-content: space-between; }
-.s-card-num { font-size: 22px; font-weight: 600; color: var(--text-primary); }
-.s-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.s-card-icon i { font-size: 18px; }
+.s-card-num { font-size: 32px; font-weight: 700; color: var(--text-primary); }
 
-/* Icons */
+/* Icons inside summary cards are now large rounded squares */
+.s-card-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; }
+.s-card-icon i { font-size: 28px; }
 .icon-yellow { background: #FFF9CC; color: #B8860B; } 
 .icon-red { background: #FCEBEB; color: #A32D2D; } 
 .icon-green { background: #EAF3DE; color: #3B6D11; } 
 .icon-gray { background: #F1EFE8; color: #5F5E5A; }
 
-/* Bottom Grid & Panels */
-.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; }
-.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.panel-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-.view-all { font-size: 12px; color: #B8860B; cursor: pointer; background: #FFF9CC; padding: 4px 10px; border-radius: 6px; }
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.panel { background: var(--surface-1); border: none; border-radius: 24px; padding: 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.panel-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.view-all { font-size: 12px; font-weight: 600; color: #111; cursor: pointer; background: #f0f0f0; padding: 8px 16px; border-radius: 8px; }
 
-/* Patients */
-.patient-card { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; border: 0.5px solid var(--border); margin-bottom: 8px; background: var(--surface-2); }
-.patient-left { display: flex; align-items: center; gap: 10px; }
-.patient-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.dot-red { background: #E24B4A; }
-.dot-green { background: #639922; }
-.dot-gray { background: #888780; }
-.patient-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.patient-village { font-size: 11px; color: var(--text-secondary); }
+/* --- PATIENTS & ALERTS LISTS --- */
+/* Replaced bordered boxes with clean dividing lines */
+.patient-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 0; background: transparent; }
+.patient-card:last-child { border-bottom: none; }
+.patient-left { display: flex; align-items: center; gap: 16px; }
+/* Replaced tiny dots with larger, modern colored circles */
+.patient-dot { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dot-red { background: #FCEBEB; border: 2px solid #E24B4A; }
+.dot-green { background: #EAF3DE; border: 2px solid #639922; }
+.dot-gray { background: #F1EFE8; border: 2px solid #888780; }
+.patient-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.patient-village { font-size: 13px; color: var(--text-muted); }
 .patient-right { text-align: right; }
-.patient-temp { font-size: 13px; font-weight: 600; }
+.patient-temp { font-size: 16px; font-weight: 700; }
 .temp-red { color: #A32D2D; }
 .temp-green { color: #3B6D11; }
 .temp-gray { color: #888780; }
-.patient-time { font-size: 11px; color: var(--text-muted); }
+.patient-time { font-size: 12px; color: var(--text-muted); }
 
-/* Badges & Chart */
-.status-pill { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+.alert-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.alert-row:last-child { border-bottom: none; }
+.alert-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.alert-detail { font-size: 13px; color: var(--text-muted); }
+
+/* Modern action buttons */
+.treat-btn { font-size: 12px; background: #111111; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.treat-btn:hover { background: var(--accent); color: #111; }
+
+/* Status Badges & Chart */
+.status-pill { font-size: 12px; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
 .pill-red { background: #FCEBEB; color: #A32D2D; }
 .pill-green { background: #EAF3DE; color: #3B6D11; }
 .pill-gray { background: #F1EFE8; color: #5F5E5A; }
-.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; margin-bottom: 8px; }
-.bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
-.bar { width: 100%; border-radius: 4px 4px 0 0; }
-.bar-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
 
-/* Alerts */
-.alert-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
-.alert-row:last-child { border-bottom: none; }
-.alert-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.alert-detail { font-size: 11px; color: var(--text-secondary); }
-.treat-btn { font-size: 11px; background: #FFD600; color: #111; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; margin-bottom: 8px; }
+.bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.bar { width: 100%; border-radius: 6px 6px 0 0; }
+.bar-label { font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
