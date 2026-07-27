@@ -1,2 +1,13 @@
-# kenza-health
-Kenza Health is an early malaria monitoring system for children under five in rural Benin. A wristband sensor detects fever spikes and alerts mothers via SMS, while health workers access a real‑time triage dashboard. The repository includes a Flask backend, PostgreSQL database, and React.js dashboard.
+# Kenza Health
+Early malaria monitoring system for children under five in rural Benin.
+
+## Live Demo
+[Link coming soon]
+
+## Tech Stack
+- Frontend: React.js
+- Backend: Python Flask
+- Database: PostgreSQL (Supabase)
+
+## Setup
+See /backend and /frontend folders for individual setup instructions.
