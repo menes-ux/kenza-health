@@ -1,3 +1,113 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Kenza Health Custom Design System */
+:root {
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --surface-1: #ffffff;
+  --surface-2: #fafafa;
+  --border: #eaeaea;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* i remove the padding and margin so the body touch the edges of the screen directly */
+body { font-family: var(--font-sans); background: #f5f5f3; padding: 0; margin: 0; overflow: hidden; }
+
+/* i added this because vite create a hidden div called root. we have to force it to take 100% of the screen otherwise it block our design */
+#root { width: 100%; height: 100vh; margin: 0; padding: 0; display: flex; }
+
+/* no more border radius or border lines. we want it to stretch everywhere like a real dashboard, not a small card */
+.wrap { display: flex; height: 100%; width: 100%; background: #f5f5f3; border-radius: 0; border: none; overflow: hidden; }
+
+/* this is the main background of the dashboard. i set it to a light gray so the white panels will pop out well */
+.content { flex: 1; overflow-y: auto; padding: 24px 32px; background: #f5f5f3; }
+
+/* Updated White Sidebar */
+.sidebar { width: 220px; background: #ffffff; display: flex; flex-direction: column; padding: 0; flex-shrink: 0; border-right: 0.5px solid var(--border); }
+.logo { padding: 20px 20px 16px; border-bottom: 0.5px solid var(--border); }
+.logo-text { font-size: 20px; font-weight: 700; color: #111111; letter-spacing: -0.5px; }
+.logo-text span { color: #FFD600; }
+.nav { padding: 12px 0; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; }
+.nav-item:hover { color: #111; background: #f5f5f3; }
+.nav-item.active { color: #111; background: #FFD600; margin: 0 12px; border-radius: 8px; padding: 10px 12px; }
+.nav-item i { font-size: 16px; }
+.sidebar-bottom { padding: 16px 20px; border-top: 0.5px solid var(--border); }
+.chw-info { display: flex; align-items: center; gap: 10px; }
+.chw-avatar { width: 32px; height: 32px; border-radius: 50%; background: #FFD600; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #111; }
+.chw-name { font-size: 12px; color: #111111; font-weight: 500; }
+.chw-role { font-size: 11px; color: var(--text-secondary); }
+
+/* The rest of the main layout */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: var(--surface-1); border-bottom: 0.5px solid var(--border); }
+.topbar-left { display: flex; flex-direction: column; }
+.topbar-title { font-size: 18px; font-weight: 500; color: var(--text-primary); }
+.topbar-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.search { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 12px; }
+.search input { border: none; background: transparent; font-size: 13px; color: var(--text-primary); outline: none; width: 140px; }
+.search i { font-size: 15px; color: var(--text-muted); }
+.notif { position: relative; cursor: pointer; }
+.notif i { font-size: 18px; color: var(--text-secondary); }
+.badge { position: absolute; top: -4px; right: -4px; background: #FFD600; color: #111; font-size: 9px; font-weight: 700; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+/* Grids & Cards */
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.s-card { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.s-card-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.s-card-row { display: flex; align-items: center; justify-content: space-between; }
+.s-card-num { font-size: 22px; font-weight: 600; color: var(--text-primary); }
+.s-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.s-card-icon i { font-size: 18px; }
+
+/* Icons */
+.icon-yellow { background: #FFF9CC; color: #B8860B; } 
+.icon-red { background: #FCEBEB; color: #A32D2D; } 
+.icon-green { background: #EAF3DE; color: #3B6D11; } 
+.icon-gray { background: #F1EFE8; color: #5F5E5A; }
+
+/* Bottom Grid & Panels */
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.panel { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.panel-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.view-all { font-size: 12px; color: #B8860B; cursor: pointer; background: #FFF9CC; padding: 4px 10px; border-radius: 6px; }
+
+/* Patients */
+.patient-card { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; border: 0.5px solid var(--border); margin-bottom: 8px; background: var(--surface-2); }
+.patient-left { display: flex; align-items: center; gap: 10px; }
+.patient-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-red { background: #E24B4A; }
+.dot-green { background: #639922; }
+.dot-gray { background: #888780; }
+.patient-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.patient-village { font-size: 11px; color: var(--text-secondary); }
+.patient-right { text-align: right; }
+.patient-temp { font-size: 13px; font-weight: 600; }
+.temp-red { color: #A32D2D; }
+.temp-green { color: #3B6D11; }
+.temp-gray { color: #888780; }
+.patient-time { font-size: 11px; color: var(--text-muted); }
+
+/* Badges & Chart */
+.status-pill { font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+.pill-red { background: #FCEBEB; color: #A32D2D; }
+.pill-green { background: #EAF3DE; color: #3B6D11; }
+.pill-gray { background: #F1EFE8; color: #5F5E5A; }
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; margin-bottom: 8px; }
+.bar-wrap { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.bar { width: 100%; border-radius: 4px 4px 0 0; }
+.bar-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Alerts */
+.alert-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+.alert-row:last-child { border-bottom: none; }
+.alert-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.alert-detail { font-size: 11px; color: var(--text-secondary); }
+.treat-btn { font-size: 11px; background: #FFD600; color: #111; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; }
