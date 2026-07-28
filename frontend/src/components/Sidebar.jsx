@@ -1,4 +1,11 @@
+import { Link, useLocation } from 'react-router-dom';
+
 export default function Sidebar() {
+  const location = useLocation();
+
+  // Helper function to check if a path is active
+  const isActive = (path) => location.pathname === path ? "nav-item active" : "nav-item";
+
   return (
     <div className="sidebar">
       <div className="logo">
@@ -6,11 +13,11 @@ export default function Sidebar() {
         <div style={{ fontSize: '10px', color: '#555', marginTop: '2px' }}>Malaria monitoring</div>
       </div>
       <div className="nav">
-        <div className="nav-item active"><i className="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</div>
-        <div className="nav-item"><i className="ti ti-users" aria-hidden="true"></i> Patients</div>
-        <div className="nav-item"><i className="ti ti-bell" aria-hidden="true"></i> Alerts</div>
-        <div className="nav-item"><i className="ti ti-chart-bar" aria-hidden="true"></i> Reports</div>
-        <div className="nav-item"><i className="ti ti-settings" aria-hidden="true"></i> Settings</div>
+        <Link to="/" className={isActive("/")}><i className="ti ti-layout-dashboard"></i> Dashboard</Link>
+        <Link to="/patients" className={isActive("/patients")}><i className="ti ti-users"></i> Patients</Link>
+        <Link to="/alerts" className={isActive("/alerts")}><i className="ti ti-bell"></i> Alerts</Link>
+        <Link to="/reports" className={isActive("/reports")}><i className="ti ti-chart-bar"></i> Reports</Link>
+        <Link to="/settings" className={isActive("/settings")}><i className="ti ti-settings"></i> Settings</Link>
       </div>
       <div className="sidebar-bottom">
         <div className="chw-info">
