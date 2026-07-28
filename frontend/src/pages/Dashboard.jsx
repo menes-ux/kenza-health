@@ -2,143 +2,226 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function Dashboard() {
-  const [alerts, setAlerts] = useState([]);
-  const [stats, setStats] = useState({ monitored: 0, active: 0, resolved: 0 });
+  const [monitoredCount, setMonitoredCount] = useState(0);
+  const [activeAlertsCount, setActiveAlertsCount] = useState(0);
+  const [resolvedCount, setResolvedCount] = useState(0);
+  const [offlineCount, setOfflineCount] = useState(0);
 
-// This runs automatically when the dashboard loads
+  const [activePatients, setActivePatients] = useState([]);
+  const [actionRequiredAlerts, setActionRequiredAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Popup Toast State
+  const [toast, setToast] = useState({ show: false, message: '' });
+
   useEffect(() => {
-    fetchDashboardData(); // The initial data load
-    
-    // Set up a background timer to fetch new data every 5 seconds
-    const interval = setInterval(() => {
-      fetchDashboardData();
-    }, 5000);
-
-    // Cleanup the timer if we navigate away from the dashboard
-    return () => clearInterval(interval);
+    fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    // 1. Get total number of monitored patients
-    const { count: monitoredCount } = await supabase
-      .from('patients')
-      .select('*', { count: 'exact', head: true });
-
-    // 2. Get active fever alerts (and attach the patient's name/village)
-    const { data: activeAlerts } = await supabase
-      .from('readings')
-      .select('*, patients(name, village)')
-      .eq('is_alert', true)
-      .eq('is_resolved', false)
-      .order('recorded_at', { ascending: false });
-
-    // 3. Get total resolved cases
-    const { count: resolvedCount } = await supabase
-      .from('readings')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_alert', true)
-      .eq('is_resolved', true);
-
-    setStats({
-      monitored: monitoredCount || 0,
-      active: activeAlerts?.length || 0,
-      resolved: resolvedCount || 0
-    });
-    setAlerts(activeAlerts || []);
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => {
+      setToast({ show: false, message: '' });
+    }, 3200);
   };
 
-  // 4. Function to mark a case as treated and instantly refresh the UI
-  const markTreated = async (readingId) => {
-    await supabase
+  const fetchDashboardData = async () => {
+    setLoading(true);
+
+    const { count: patientCount } = await supabase
+      .from('patients')
+      .select('*', { count: 'exact', head: true });
+    setMonitoredCount(patientCount || 0);
+
+    const { data: activeReadings, error: activeErr } = await supabase
+      .from('readings')
+      .select(`
+        id,
+        temperature,
+        created_at,
+        patient_id,
+        patients (
+          id,
+          name,
+          village,
+          device_id
+        )
+      `)
+      .eq('is_resolved', false)
+      .order('created_at', { ascending: false });
+
+    if (activeErr) console.error('Error fetching active readings:', activeErr);
+
+    const activeList = activeReadings || [];
+    setActiveAlertsCount(activeList.length);
+    setActivePatients(activeList);
+    setActionRequiredAlerts(activeList);
+
+    const { count: resolvedCountVal } = await supabase
+      .from('readings')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_resolved', true);
+    setResolvedCount(resolvedCountVal || 0);
+
+    setOfflineCount(0);
+    setLoading(false);
+  };
+
+  const handleMarkTreated = async (readingId, patientName) => {
+    const { error } = await supabase
       .from('readings')
       .update({ is_resolved: true })
       .eq('id', readingId);
-      
-    fetchDashboardData(); // Refresh the screen instantly!
-  };
 
-  // Helper to format the timestamp into AM/PM
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status.');
+    } else {
+      showToast(`Status updated: ${patientName} resolved`);
+      fetchDashboardData();
+    }
   };
 
   return (
-    <div className="content">
-      {/* Top Stats Row */}
+    <div className="content" style={{ position: 'relative', minHeight: '100%' }}>
+      
+      {/* MINIMALIST DARK GRAY TOAST POPUP (BOTTOM RIGHT) */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          zIndex: 9999,
+          backgroundColor: '#2A2A2A',
+          color: '#F4F4F5',
+          padding: '12px 20px',
+          borderRadius: '6px',
+          boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontSize: '13px',
+          fontWeight: 500,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <i className="ti ti-check" style={{ fontSize: '16px', color: '#A1CFA4' }}></i>
+          <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* SUMMARY CARDS */}
       <div className="summary-grid">
         <div className="s-card">
           <div className="s-card-label">Monitored</div>
           <div className="s-card-row">
-            <div className="s-card-num">{stats.monitored}</div>
-            <div className="s-card-icon icon-yellow"><i className="ti ti-activity"></i></div>
+            <div className="s-card-num">{monitoredCount}</div>
+            <div className="s-card-icon icon-yellow">
+              <i className="ti ti-activity" style={{ fontSize: '18px' }}></i>
+            </div>
           </div>
         </div>
+
         <div className="s-card">
           <div className="s-card-label">Active Alerts</div>
           <div className="s-card-row">
-            <div className="s-card-num" style={{ color: '#A32D2D' }}>{stats.active}</div>
-            <div className="s-card-icon icon-red"><i className="ti ti-alert-triangle"></i></div>
+            <div className="s-card-num" style={{ color: activeAlertsCount > 0 ? '#A32D2D' : '#111' }}>
+              {activeAlertsCount}
+            </div>
+            <div className="s-card-icon icon-red">
+              <i className="ti ti-alert-triangle" style={{ fontSize: '18px' }}></i>
+            </div>
           </div>
         </div>
+
         <div className="s-card">
-          <div className="s-card-label">Resolved Today</div>
+          <div className="s-card-label">Resolved Cases</div>
           <div className="s-card-row">
-            <div className="s-card-num" style={{ color: '#3B6D11' }}>{stats.resolved}</div>
-            <div className="s-card-icon icon-green"><i className="ti ti-circle-check"></i></div>
+            <div className="s-card-num">{resolvedCount}</div>
+            <div className="s-card-icon icon-green">
+              <i className="ti ti-circle-check" style={{ fontSize: '18px' }}></i>
+            </div>
           </div>
         </div>
+
         <div className="s-card">
           <div className="s-card-label">Offline Devices</div>
           <div className="s-card-row">
-            <div className="s-card-num">0</div>
-            <div className="s-card-icon icon-gray"><i className="ti ti-wifi-off"></i></div>
+            <div className="s-card-num">{offlineCount}</div>
+            <div className="s-card-icon icon-gray">
+              <i className="ti ti-wifi-off" style={{ fontSize: '18px' }}></i>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Grid for Lists */}
+      {/* BOTTOM PANELS */}
       <div className="bottom-grid">
+        {/* Active Patients */}
         <div className="panel">
           <div className="panel-header">
             <div className="panel-title">Active Patients</div>
-            <div className="view-all">View all</div>
+            <button className="view-all" style={{ fontSize: '12px' }}>View all</button>
           </div>
-          {alerts.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#888' }}>No active alerts. All clear!</p>
+
+          {loading ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '13px', padding: '10px 0' }}>
+               <i className="ti ti-loader" style={{ fontSize: '16px', animation: 'spin 1s linear infinite' }}></i>
+               Syncing telemetry...
+            </div>
+          ) : activePatients.length === 0 ? (
+            <p style={{ color: '#888', fontSize: '13px' }}>No active fever alerts.</p>
           ) : (
-            alerts.map((alert) => (
-              <div className="patient-card" key={alert.id}>
+            activePatients.map((reading) => (
+              <div className="patient-card" key={reading.id}>
                 <div className="patient-left">
-                  <div className="patient-dot dot-red"></div>
+                  <div className="patient-dot dot-red">
+                    <i className="ti ti-user" style={{ fontSize: '16px', color: '#A32D2D' }}></i>
+                  </div>
                   <div>
-                    <div className="patient-name">{alert.patients?.name}</div>
-                    <div className="patient-village">{alert.patients?.village}</div>
+                    <div className="patient-name">{reading.patients?.name || 'Unknown'}</div>
+                    <div className="patient-village" style={{ fontSize: '12px' }}>
+                      {reading.patients?.village || 'Lokossa'} • <span style={{ color: '#999' }}>{reading.patients?.device_id}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="patient-right">
-                  <div className="patient-temp temp-red">{alert.temperature}°C</div>
-                  <div className="patient-time">{formatTime(alert.recorded_at)}</div>
+                  <div className="patient-temp temp-red" style={{ fontSize: '14px' }}>{reading.temperature}°C</div>
+                  <div className="patient-time" style={{ fontSize: '12px', color: '#888' }}>
+                    {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
             ))
           )}
         </div>
 
+        {/* Action Required */}
         <div className="panel">
           <div className="panel-header">
             <div className="panel-title">Action Required</div>
           </div>
-          {alerts.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#888' }}>No pending actions.</p>
+
+          {loading ? (
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '13px', padding: '10px 0' }}>
+               <i className="ti ti-loader" style={{ fontSize: '16px', animation: 'spin 1s linear infinite' }}></i>
+               Syncing telemetry...
+            </div>
+          ) : actionRequiredAlerts.length === 0 ? (
+            <p style={{ color: '#888', fontSize: '13px' }}>All patient alerts treated!</p>
           ) : (
-            alerts.map((alert) => (
-              <div className="alert-row" key={alert.id}>
+            actionRequiredAlerts.map((reading) => (
+              <div className="alert-row" key={reading.id}>
                 <div>
-                  <div className="alert-name">{alert.patients?.name}</div>
-                  <div className="alert-detail">{alert.temperature}°C • {formatTime(alert.recorded_at)}</div>
+                  <div className="alert-name" style={{ fontSize: '14px' }}>{reading.patients?.name || 'Unknown Patient'}</div>
+                  <div className="alert-detail" style={{ fontSize: '12px', color: '#888' }}>
+                    {reading.temperature}°C • {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
-                <button onClick={() => markTreated(alert.id)} className="treat-btn">
+                <button
+                  className="treat-btn"
+                  style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px' }}
+                  onClick={() => handleMarkTreated(reading.id, reading.patients?.name || 'Patient')}
+                >
                   Mark treated
                 </button>
               </div>
@@ -146,6 +229,17 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+      
+     
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

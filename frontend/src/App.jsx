@@ -1,38 +1,140 @@
-import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import TopBar from './components/TopBar';
+import { useEffect, useState } from 'react';
+import { supabase } from './supabaseClient';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Patients from './pages/Patients';
-import Alerts from './pages/Alerts';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import Login from './pages/Login';
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  if (!isAuthenticated) {
-    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#ffffff',
+        color: '#111111',
+        fontFamily: 'Poppins, sans-serif',
+        fontWeight: 600
+      }}>
+        Loading Kenza Health System...
+      </div>
+    );
   }
 
+  // Show Login if unauthenticated
+  if (!session) {
+    return <Login onLogin={() => {}} />;
+  }
+
+  const userEmail = session.user?.email || 'CHW User';
+  const username = userEmail.split('@')[0];
+
   return (
-    <Router>
-      <div className="wrap">
-        <Sidebar />
-        <div className="main">
-          <TopBar />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/patients" element={<Patients />} />
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
+    <div className="wrap">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="logo">
+          <div className="logo-text">KENZA <span>H.</span></div>
         </div>
-      </div>
-    </Router>
+
+        <nav className="nav">
+          <div 
+            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <i className="ti ti-layout-dashboard"></i>
+            <span>Dashboard</span>
+          </div>
+          <div 
+            className={`nav-item ${activeTab === 'patients' ? 'active' : ''}`}
+            onClick={() => setActiveTab('patients')}
+          >
+            <i className="ti ti-users"></i>
+            <span>Patients</span>
+          </div>
+        </nav>
+
+        <div className="sidebar-bottom">
+          <div className="chw-info" style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="chw-avatar">{username.charAt(0).toUpperCase()}</div>
+              <div>
+                <div className="chw-name">{username}</div>
+                <div className="chw-role">Health Officer</div>
+              </div>
+            </div>
+            <button 
+              onClick={handleLogout} 
+              title="Sign out"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#888888',
+                fontSize: '18px'
+              }}
+            >
+              <i className="ti ti-logout"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN LAYOUT AREA */}
+      <main className="main">
+        {/* TOPBAR */}
+        <header className="topbar">
+          <div className="topbar-left">
+            <div className="topbar-title">
+              {activeTab === 'dashboard' ? 'Dashboard Overview' : 'Patient Records'}
+            </div>
+            <div className="topbar-sub">Lokossa District Monitoring Station</div>
+          </div>
+
+          <div className="topbar-right">
+            <div className="search">
+              <i className="ti ti-search"></i>
+              <input type="text" placeholder="Search patients or alerts..." />
+            </div>
+            <div className="notif">
+              <button 
+                  className="notification-btn" 
+                  onClick={() => alert("Feature in development (Phase 2): Push notifications currently routing via SMS gateway.")}
+                >
+                  <i className="ti ti-bell"></i>
+            </button>
+              
+            </div>
+          </div>
+        </header>
+
+        {/* PAGE CANVAS */}
+        {activeTab === 'dashboard' && <Dashboard />}
+        {activeTab === 'patients' && <Patients />}
+      </main>
+    </div>
   );
 }
-
-export default App;
