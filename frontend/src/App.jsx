@@ -120,14 +120,23 @@ export default function App() {
               <input type="text" placeholder="Search patients or alerts..." />
             </div>
             <div className="notif">
-              <button 
-                  className="notification-btn" 
-                  onClick={() => alert("Feature in development (Phase 2): Push notifications currently routing via SMS gateway.")}
-                >
-                  <i className="ti ti-bell"></i>
-            </button>
+              
               
             </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+  {/* The Bell Icon */}
+  <button onClick={() => alert("Feature in development (Phase 2): Push notifications currently routing via SMS gateway.")} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, fontSize: '24px', color: '#111', display: 'flex', alignItems: 'center' }}>
+    <i className="ti ti-bell"></i>
+  </button>
+  
+  {/* The Avatar */}
+  <img 
+    src="https://ui-avatars.com/api/?name=Kenza+Health&background=FFD600&color=111&rounded=true&bold=true" 
+    alt="Profile" 
+    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #EAEAEA', cursor: 'pointer' }}
+  />
+</div>
           </div>
         </header>
 

@@ -1,245 +1,183 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
+const LiveHeader = () => {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const gmtDate = time.toLocaleDateString('en-GB', { timeZone: 'GMT', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const gmtTime = time.toLocaleTimeString('en-US', { timeZone: 'GMT', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      <h1 style={{ fontSize: '28px', fontWeight: '800', margin: '0 0 4px 0', color: '#111' }}>Dashboard</h1>
+      <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>{gmtDate} | {gmtTime} (GMT)</div>
+    </div>
+  );
+};
+
 export default function Dashboard() {
   const [monitoredCount, setMonitoredCount] = useState(0);
   const [activeAlertsCount, setActiveAlertsCount] = useState(0);
   const [resolvedCount, setResolvedCount] = useState(0);
   const [offlineCount, setOfflineCount] = useState(0);
-
   const [activePatients, setActivePatients] = useState([]);
-  const [actionRequiredAlerts, setActionRequiredAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Popup Toast State
-  const [toast, setToast] = useState({ show: false, message: '' });
+  
+  // New States for Search and Initial Load
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
+    // 1. Fetch immediately on load
     fetchDashboardData();
+    
+    // 2. Set up the LIVE Polling every 3 seconds (Silent background update)
+    const liveInterval = setInterval(() => {
+      fetchDashboardData();
+    }, 3000);
+
+    return () => clearInterval(liveInterval);
   }, []);
 
-  const showToast = (message) => {
-    setToast({ show: true, message });
-    setTimeout(() => {
-      setToast({ show: false, message: '' });
-    }, 3200);
-  };
-
   const fetchDashboardData = async () => {
-    setLoading(true);
-
-    const { count: patientCount } = await supabase
-      .from('patients')
-      .select('*', { count: 'exact', head: true });
+    const { count: patientCount } = await supabase.from('patients').select('*', { count: 'exact', head: true });
     setMonitoredCount(patientCount || 0);
 
-    const { data: activeReadings, error: activeErr } = await supabase
-      .from('readings')
-      .select(`
-        id,
-        temperature,
-        created_at,
-        patient_id,
-        patients (
-          id,
-          name,
-          village,
-          device_id
-        )
-      `)
-      .eq('is_resolved', false)
-      .order('created_at', { ascending: false });
-
-    if (activeErr) console.error('Error fetching active readings:', activeErr);
-
+    const { data: activeReadings } = await supabase.from('readings').select('id, temperature, created_at, patients(name, village, device_id)').eq('is_resolved', false).order('created_at', { ascending: false });
     const activeList = activeReadings || [];
     setActiveAlertsCount(activeList.length);
     setActivePatients(activeList);
-    setActionRequiredAlerts(activeList);
 
-    const { count: resolvedCountVal } = await supabase
-      .from('readings')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_resolved', true);
+    const { count: resolvedCountVal } = await supabase.from('readings').select('*', { count: 'exact', head: true }).eq('is_resolved', true);
     setResolvedCount(resolvedCountVal || 0);
-
     setOfflineCount(0);
-    setLoading(false);
+    
+    // Turn off the full-screen spinner after the first data pull
+    setInitialLoad(false);
   };
 
-  const handleMarkTreated = async (readingId, patientName) => {
-    const { error } = await supabase
-      .from('readings')
-      .update({ is_resolved: true })
-      .eq('id', readingId);
-
-    if (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status.');
-    } else {
-      showToast(`Status updated: ${patientName} resolved`);
-      fetchDashboardData();
-    }
+  const handleMarkTreated = async (readingId) => {
+    await supabase.from('readings').update({ is_resolved: true }).eq('id', readingId);
+    fetchDashboardData();
   };
+
+  // The Search Filter Logic
+  const filteredActivePatients = activePatients.filter((reading) => {
+    const searchTerm = search.toLowerCase();
+    const patientName = reading.patients?.name?.toLowerCase() || '';
+    const village = reading.patients?.village?.toLowerCase() || '';
+    const deviceId = reading.patients?.device_id?.toLowerCase() || '';
+    return patientName.includes(searchTerm) || village.includes(searchTerm) || deviceId.includes(searchTerm);
+  });
+
+  const iconBoxStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '12px', fontSize: '20px' };
+
+  // --- THE YELLOW LOADING SPINNER OVERLAY ---
+  if (initialLoad) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#F8F9FA' }}>
+        <style>{`
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          .yellow-spinner { border: 4px solid rgba(255, 214, 0, 0.2); width: 48px; height: 48px; border-radius: 50%; border-left-color: #FFD600; animation: spin 1s linear infinite; }
+        `}</style>
+        <div className="yellow-spinner"></div>
+        <div style={{ marginTop: '16px', fontSize: '14px', color: '#666', fontWeight: 600, letterSpacing: '1px' }}>INITIALISATION...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="content" style={{ position: 'relative', minHeight: '100%' }}>
-      
-      {/* MINIMALIST DARK GRAY TOAST POPUP (BOTTOM RIGHT) */}
-      {toast.show && (
-        <div style={{
-          position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          zIndex: 9999,
-          backgroundColor: '#2A2A2A',
-          color: '#F4F4F5',
-          padding: '12px 20px',
-          borderRadius: '6px',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          fontSize: '13px',
-          fontWeight: 500,
-          animation: 'slideUp 0.3s ease-out'
-        }}>
-          <i className="ti ti-check" style={{ fontSize: '16px', color: '#A1CFA4' }}></i>
-          <span>{toast.message}</span>
-        </div>
-      )}
-
-      {/* SUMMARY CARDS */}
-      <div className="summary-grid">
-        <div className="s-card">
-          <div className="s-card-label">Monitored</div>
-          <div className="s-card-row">
-            <div className="s-card-num">{monitoredCount}</div>
-            <div className="s-card-icon icon-yellow">
-              <i className="ti ti-activity" style={{ fontSize: '18px' }}></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="s-card">
-          <div className="s-card-label">Active Alerts</div>
-          <div className="s-card-row">
-            <div className="s-card-num" style={{ color: activeAlertsCount > 0 ? '#A32D2D' : '#111' }}>
-              {activeAlertsCount}
-            </div>
-            <div className="s-card-icon icon-red">
-              <i className="ti ti-alert-triangle" style={{ fontSize: '18px' }}></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="s-card">
-          <div className="s-card-label">Resolved Cases</div>
-          <div className="s-card-row">
-            <div className="s-card-num">{resolvedCount}</div>
-            <div className="s-card-icon icon-green">
-              <i className="ti ti-circle-check" style={{ fontSize: '18px' }}></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="s-card">
-          <div className="s-card-label">Offline Devices</div>
-          <div className="s-card-row">
-            <div className="s-card-num">{offlineCount}</div>
-            <div className="s-card-icon icon-gray">
-              <i className="ti ti-wifi-off" style={{ fontSize: '18px' }}></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* BOTTOM PANELS */}
-      <div className="bottom-grid">
-        {/* Active Patients */}
-        <div className="panel">
-          <div className="panel-header">
-            <div className="panel-title">Active Patients</div>
-            <button className="view-all" style={{ fontSize: '12px' }}>View all</button>
-          </div>
-
-          {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '13px', padding: '10px 0' }}>
-               <i className="ti ti-loader" style={{ fontSize: '16px', animation: 'spin 1s linear infinite' }}></i>
-               Syncing telemetry...
-            </div>
-          ) : activePatients.length === 0 ? (
-            <p style={{ color: '#888', fontSize: '13px' }}>No active fever alerts.</p>
-          ) : (
-            activePatients.map((reading) => (
-              <div className="patient-card" key={reading.id}>
-                <div className="patient-left">
-                  <div className="patient-dot dot-red">
-                    <i className="ti ti-user" style={{ fontSize: '16px', color: '#A32D2D' }}></i>
-                  </div>
-                  <div>
-                    <div className="patient-name">{reading.patients?.name || 'Unknown'}</div>
-                    <div className="patient-village" style={{ fontSize: '12px' }}>
-                      {reading.patients?.village || 'Lokossa'} • <span style={{ color: '#999' }}>{reading.patients?.device_id}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="patient-right">
-                  <div className="patient-temp temp-red" style={{ fontSize: '14px' }}>{reading.temperature}°C</div>
-                  <div className="patient-time" style={{ fontSize: '12px', color: '#888' }}>
-                    {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Action Required */}
-        <div className="panel">
-          <div className="panel-header">
-            <div className="panel-title">Action Required</div>
-          </div>
-
-          {loading ? (
-             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '13px', padding: '10px 0' }}>
-               <i className="ti ti-loader" style={{ fontSize: '16px', animation: 'spin 1s linear infinite' }}></i>
-               Syncing telemetry...
-            </div>
-          ) : actionRequiredAlerts.length === 0 ? (
-            <p style={{ color: '#888', fontSize: '13px' }}>All patient alerts treated!</p>
-          ) : (
-            actionRequiredAlerts.map((reading) => (
-              <div className="alert-row" key={reading.id}>
-                <div>
-                  <div className="alert-name" style={{ fontSize: '14px' }}>{reading.patients?.name || 'Unknown Patient'}</div>
-                  <div className="alert-detail" style={{ fontSize: '12px', color: '#888' }}>
-                    {reading.temperature}°C • {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-                <button
-                  className="treat-btn"
-                  style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '4px' }}
-                  onClick={() => handleMarkTreated(reading.id, reading.patients?.name || 'Patient')}
-                >
-                  Mark treated
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-      
-     
+    <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
       <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes spin {
-          100% { transform: rotate(360deg); }
-        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .blinking-degree { animation: blink 1s step-start infinite; }
       `}</style>
+      
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <LiveHeader />
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+          <div style={{ backgroundColor: '#FFF', padding: '20px', borderRadius: '16px', border: '1px solid #EAEAEA' }}>
+            <div style={{ fontSize: '14px', color: '#666', fontWeight: 600, marginBottom: '12px' }}>Monitored Patients</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <div style={{ fontSize: '32px', fontWeight: 800, color: '#111' }}>{monitoredCount}</div>
+              <div style={{ ...iconBoxStyle, backgroundColor: '#FFF9E6', color: '#FFD600' }}><i className="ti ti-users"></i></div>
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#FFF', padding: '20px', borderRadius: '16px', border: activeAlertsCount > 0 ? '1px solid #E03131' : '1px solid #EAEAEA' }}>
+            <div style={{ fontSize: '14px', color: '#666', fontWeight: 600, marginBottom: '12px' }}>Active Alerts</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <div style={{ fontSize: '32px', fontWeight: 800, color: activeAlertsCount > 0 ? '#E03131' : '#111' }}>{activeAlertsCount}</div>
+              <div style={{ ...iconBoxStyle, backgroundColor: '#FFF0F0', color: '#E03131' }}><i className="ti ti-activity"></i></div>
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#FFF', padding: '20px', borderRadius: '16px', border: '1px solid #EAEAEA' }}>
+            <div style={{ fontSize: '14px', color: '#666', fontWeight: 600, marginBottom: '12px' }}>Resolved Cases</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <div style={{ fontSize: '32px', fontWeight: 800, color: '#111' }}>{resolvedCount}</div>
+              <div style={{ ...iconBoxStyle, backgroundColor: '#FFF9E6', color: '#FFD600' }}><i className="ti ti-circle-check"></i></div>
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#FFF', padding: '20px', borderRadius: '16px', border: '1px solid #EAEAEA' }}>
+            <div style={{ fontSize: '14px', color: '#666', fontWeight: 600, marginBottom: '12px' }}>Offline Devices</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <div style={{ fontSize: '32px', fontWeight: 800, color: '#999' }}>{offlineCount}</div>
+              <div style={{ ...iconBoxStyle, backgroundColor: '#F4F4F5', color: '#A0A0A0' }}><i className="ti ti-wifi-off"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: '#FFF', padding: '24px', borderRadius: '16px', border: '1px solid #EAEAEA', color: '#111' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #F0F0F0', paddingBottom: '12px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#111', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
+              Action Required / Log
+            </h2>
+            
+            {/* THE WORKING SEARCH BAR */}
+            <input
+              type="text"
+              placeholder="Search alerts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #DDD', fontSize: '13px', width: '220px', outline: 'none', fontFamily: 'monospace' }}
+            />
+          </div>
+
+          {filteredActivePatients.length === 0 ? (
+            <div style={{ padding: '10px 0', color: '#888', fontSize: '13px', fontFamily: 'monospace' }}>&gt; No active alerts match your search.</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
+              {filteredActivePatients.map((reading) => (
+                <div key={reading.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderRadius: '8px', borderBottom: '1px solid #F8F9FA', fontFamily: 'monospace', fontSize: '14px' }}>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                    <div style={{ color: '#E03131', fontWeight: 'bold' }}>● ALERTE</div>
+                    <div style={{ color: '#666' }}>
+                      {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </div>
+                    <div style={{ color: '#111', fontWeight: 600 }}>{reading.patients?.name || 'Unknown'}</div>
+                    <div style={{ color: '#888' }}>{reading.patients?.device_id}</div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <div style={{ color: '#E03131', fontWeight: 800, fontSize: '16px' }}>
+                      {/* FIXING THE DECIMALS HERE */}
+                      {Number(reading.temperature).toFixed(1)}<span className="blinking-degree">°</span>C
+                    </div>
+                    <button onClick={() => handleMarkTreated(reading.id)} style={{ backgroundColor: '#FFF', color: '#111', border: '1px solid #CCC', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontFamily: 'monospace', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>
+                      RESOLVE
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
