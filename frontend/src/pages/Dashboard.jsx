@@ -76,16 +76,16 @@ export default function Dashboard() {
 
   const iconBoxStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '12px', fontSize: '20px' };
 
-  // --- THE YELLOW LOADING SPINNER OVERLAY ---
+ // --- THE FULL-SCREEN YELLOW SPINNER OVERLAY ---
   if (initialLoad) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#F8F9FA' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F9FA' }}>
         <style>{`
           @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          .yellow-spinner { border: 4px solid rgba(255, 214, 0, 0.2); width: 48px; height: 48px; border-radius: 50%; border-left-color: #FFD600; animation: spin 1s linear infinite; }
+          .yellow-spinner { border: 4px solid rgba(255, 214, 0, 0.2); width: 48px; height: 48px; border-radius: 50%; border-left-color: #FFD600; animation: spin 0.4s linear infinite; }
         `}</style>
         <div className="yellow-spinner"></div>
-        <div style={{ marginTop: '16px', fontSize: '14px', color: '#666', fontWeight: 600, letterSpacing: '1px' }}>INITIALISATION...</div>
+        <div style={{ marginTop: '16px', fontSize: '14px', color: '#111', fontWeight: 700, letterSpacing: '1px' }}>LOADING...</div>
       </div>
     );
   }
