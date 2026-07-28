@@ -5,9 +5,17 @@ export default function Dashboard() {
   const [alerts, setAlerts] = useState([]);
   const [stats, setStats] = useState({ monitored: 0, active: 0, resolved: 0 });
 
-  // This runs automatically when the dashboard loads
+// This runs automatically when the dashboard loads
   useEffect(() => {
-    fetchDashboardData();
+    fetchDashboardData(); // The initial data load
+    
+    // Set up a background timer to fetch new data every 5 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 5000);
+
+    // Cleanup the timer if we navigate away from the dashboard
+    return () => clearInterval(interval);
   }, []);
 
   const fetchDashboardData = async () => {
