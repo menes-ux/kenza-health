@@ -171,6 +171,50 @@ a {
 }
 
 
+/* --- MOBILE RESPONSIVENESS (NF 6 & 7) --- */
+@media screen and (max-width: 768px) {
+  .wrap {
+    flex-direction: column;
+  }
+  
+  /* Hide the sidebar on very small screens, or adjust its width */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+  }
+  
+  /* Make the nav items sit side-by-side on mobile */
+  .nav {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding-bottom: 0 !important;
+  }
+  
+  /* Stack the topbar elements */
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    height: auto;
+    padding: 15px;
+  }
+  
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Make sure the search bar shrinks to fit the phone screen */
+  .topbar-right input {
+    width: 100% !important;
+    max-width: 180px;
+  }
+}
+
 
 @keyframes slideUp {
           from { transform: translateY(20px); opacity: 0; }
