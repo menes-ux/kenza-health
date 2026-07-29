@@ -76,17 +76,49 @@ export default function App() {
             <span>Patients</span>
           </div>
 
-          <div style={{ marginTop: '24px', marginBottom: '8px', paddingLeft: '16px', fontSize: '11px', fontWeight: 700, color: '#A0A0A0', textTransform: 'uppercase', letterSpacing: '1px' }}>Modules Phase 2</div>
+          {/* --- MODULES PHASE 2 (Grisés pour MVP) --- */}
+          {/* Section title for future roadmap features */}
+          <div style={{ marginTop: '24px', marginBottom: '8px', paddingLeft: '16px', fontSize: '11px', fontWeight: 700, color: '#A0A0A0', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Modules Phase 2
+          </div>
           
           <div className="nav-item" onClick={() => alert("Phase 2 : Cartographie géospatiale des épidémies en développement.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
             <i className="ti ti-map-2"></i><span>Carte des épidémies</span>
           </div>
-          <div className="nav-item" onClick={() => alert("Phase 2 : Regroupement par ménages.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Regroupement par ménages et villages.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
             <i className="ti ti-home-heart"></i><span>Ménages</span>
           </div>
-          <div className="nav-item" onClick={() => alert("Phase 2 : Suivi des stocks d'antipaludéens.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Planification des visites de suivi pour les agents de santé.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-calendar-event"></i><span>Planification</span>
+          </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Suivi des stocks de médicaments antipaludéens.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
             <i className="ti ti-first-aid-kit"></i><span>Pharmacie</span>
           </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Gestion du parc matériel et suivi des batteries (Arduino/Modules).")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-cpu"></i><span>Appareils</span>
+          </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Historique de la passerelle SMS et messagerie directe.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-message-2"></i><span>Communications</span>
+          </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Analyses avancées et export de rapports CSV pour le district.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-chart-bar"></i><span>Analyses</span>
+          </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Protocoles de santé et modules de formation pour les agents.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-book"></i><span>Formation</span>
+          </div>
+          
+          <div className="nav-item" onClick={() => alert("Phase 2 : Configuration du système et gestion des autorisations.")} style={{ opacity: 0.4, cursor: 'not-allowed', filter: 'grayscale(100%)' }}>
+            <i className="ti ti-settings"></i><span>Paramètres</span>
+          </div>
+
+          
         </nav>
 
         <div className="sidebar-bottom">
@@ -113,16 +145,18 @@ export default function App() {
             </div>
           </div>
 
-          <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div className="topbar-right">
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <i className="ti ti-search" style={{ position: 'absolute', left: '12px', color: '#888', fontSize: '16px' }}></i>
-              <input type="text" placeholder="Rechercher..." value={globalSearch} onChange={(e) => setGlobalSearch(e.target.value)} style={{ padding: '8px 16px 8px 36px', borderRadius: '20px', border: '1px solid #EAEAEA', backgroundColor: '#F8F9FA', outline: 'none', fontSize: '13px', width: '200px' }} />
+              <input type="text" placeholder="Rechercher..." value={globalSearch} onChange={(e) => setGlobalSearch(e.target.value)} style={{ padding: '8px 16px 8px 36px', borderRadius: '20px', border: '1px solid #EAEAEA', backgroundColor: '#F8F9FA', outline: 'none', fontSize: '13px', width: '100%', maxWidth: '200px', minWidth: '120px' }} />
             </div>
 
             {/* NEW: FONGBE / MINAN AUDIO BUTTON */}
             <button onClick={() => alert("Traduction Audio : Le module de synthèse vocale en Fongbé et Minan est en cours d'intégration (Phase 2).")} style={{ background: '#FFF9E6', border: '1px solid #FFD600', borderRadius: '20px', cursor: 'pointer', padding: '6px 12px', fontSize: '13px', fontWeight: 'bold', color: '#111', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <i className="ti ti-volume"></i> Audio
             </button>
+
+            
 
             <button onClick={() => alert("Notifications Push en cours de développement.")} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#111' }}>
               <i className="ti ti-bell"></i>

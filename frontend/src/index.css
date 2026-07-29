@@ -85,7 +85,7 @@ body { font-family: var(--font-sans); background: var(--surface-1); padding: 0; 
 .topbar-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
 .topbar-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 
-.topbar-right { display: flex; align-items: center; gap: 24px; }
+.topbar-right { display: flex; align-items: center; gap: 20px; }
 /* Tasky style search pill */
 .search { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 12px; padding: 12px 16px; width: 300px; }
 .search input { border: none; background: transparent; font-size: 13px; color: var(--text-primary); outline: none; width: 100%; }
@@ -170,51 +170,81 @@ a {
   color: inherit;
 }
 
+/* --- TABLET (iPad, small laptops) --- */
+@media screen and (max-width: 1024px) {
+  .sidebar { width: 220px; }
+  .content { padding: 28px; border-top-left-radius: 28px; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .s-card-icon { width: 52px; height: 52px; }
+}
+
 
 /* --- MOBILE RESPONSIVENESS (NF 6 & 7) --- */
 @media screen and (max-width: 768px) {
-  .wrap {
-    flex-direction: column;
-  }
-  
-  /* Hide the sidebar on very small screens, or adjust its width */
+  .wrap { flex-direction: column; }
+
   .sidebar {
     width: 100%;
     height: auto;
     flex-direction: row;
     overflow-x: auto;
     padding: 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
   }
-  
-  /* Make the nav items sit side-by-side on mobile */
+
+  .logo { display: none; } /* saves vertical space, or shrink instead of hiding */
+
   .nav {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 8px;
     padding-bottom: 0 !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  
-  /* Stack the topbar elements */
+
+  .nav-item { padding: 10px 16px; white-space: nowrap; }
+  .nav-item span { font-size: 13px; }
+
+  .sidebar-bottom { display: none; } /* or move it into a hamburger drawer */
+
   .topbar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
-    height: auto;
-    padding: 15px;
+    gap: 12px;
+    padding: 16px;
   }
-  
+
   .topbar-right {
     width: 100%;
     justify-content: space-between;
+    gap: 12px;
   }
 
-  /* Make sure the search bar shrinks to fit the phone screen */
-  .topbar-right input {
-    width: 100% !important;
-    max-width: 180px;
-  }
+  .content { padding: 16px; border-top-left-radius: 20px; }
+
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .s-card { padding: 16px; border-radius: 16px; }
+  .s-card-num { font-size: 24px; }
+  .s-card-icon { width: 44px; height: 44px; border-radius: 12px; }
+  .s-card-icon i { font-size: 20px; }
+
+  .panel { padding: 18px; border-radius: 16px; }
 }
 
+/* --- SMALL PHONES --- */
+@media screen and (max-width: 420px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  .topbar-title { font-size: 19px; }
+}
+
+
+@media screen and (max-width: 480px) {
+  .audio-label { display: none; }
+  .audio-btn { padding: 8px !important; }
+}
 
 @keyframes slideUp {
           from { transform: translateY(20px); opacity: 0; }
