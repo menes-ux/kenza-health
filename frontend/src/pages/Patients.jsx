@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 
-export default function Patients() {
+export default function Patients({ globalSearch = '' }) {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
 
   // Form State
   const [name, setName] = useState('');
@@ -63,9 +62,9 @@ export default function Patients() {
 
   const filteredPatients = patients.filter(
     (p) =>
-      p.name?.toLowerCase().includes(search.toLowerCase()) ||
-      p.village?.toLowerCase().includes(search.toLowerCase()) ||
-      p.device_id?.toLowerCase().includes(search.toLowerCase())
+      p.name?.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      p.village?.toLowerCase().includes(globalSearch.toLowerCase()) ||
+      p.device_id?.toLowerCase().includes(globalSearch.toLowerCase())
   );
 
   return (
@@ -125,14 +124,7 @@ export default function Patients() {
             <h2 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#111', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
               Database Feed ({filteredPatients.length})
             </h2>
-            
-            <input
-              type="text"
-              placeholder="Search database..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #DDD', fontSize: '13px', width: '220px', outline: 'none', fontFamily: 'monospace' }}
-            />
+            {/* LOCAL SEARCH BAR DELETED FROM HERE */}
           </div>
 
           {loading ? (
@@ -161,7 +153,6 @@ export default function Patients() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

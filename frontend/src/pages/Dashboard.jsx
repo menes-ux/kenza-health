@@ -20,26 +20,20 @@ const LiveHeader = () => {
   );
 };
 
-export default function Dashboard() {
+export default function Dashboard({ globalSearch = '' }) {
   const [monitoredCount, setMonitoredCount] = useState(0);
   const [activeAlertsCount, setActiveAlertsCount] = useState(0);
   const [resolvedCount, setResolvedCount] = useState(0);
   const [offlineCount, setOfflineCount] = useState(0);
   const [activePatients, setActivePatients] = useState([]);
   
-  // New States for Search and Initial Load
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [search, setSearch] = useState('');
+
 
   useEffect(() => {
-    // 1. Fetch immediately on load
     fetchDashboardData();
-    
-    // 2. Set up the LIVE Polling every 3 seconds (Silent background update)
     const liveInterval = setInterval(() => {
       fetchDashboardData();
     }, 3000);
-
     return () => clearInterval(liveInterval);
   }, []);
 
@@ -56,8 +50,7 @@ export default function Dashboard() {
     setResolvedCount(resolvedCountVal || 0);
     setOfflineCount(0);
     
-    // Turn off the full-screen spinner after the first data pull
-    setInitialLoad(false);
+  
   };
 
   const handleMarkTreated = async (readingId) => {
@@ -65,10 +58,9 @@ export default function Dashboard() {
     fetchDashboardData();
   };
 
-  // The Search Filter Logic
   const filteredActivePatients = activePatients.filter((reading) => {
-    const searchTerm = search.toLowerCase();
-    const patientName = reading.patients?.name?.toLowerCase() || '';
+    const searchTerm = globalSearch.toLowerCase();
+    const patientName = reading.patients?.name?.toLowerCase() || reading.patients?.[0]?.name?.toLowerCase() || '';
     const village = reading.patients?.village?.toLowerCase() || '';
     const deviceId = reading.patients?.device_id?.toLowerCase() || '';
     return patientName.includes(searchTerm) || village.includes(searchTerm) || deviceId.includes(searchTerm);
@@ -76,19 +68,6 @@ export default function Dashboard() {
 
   const iconBoxStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '12px', fontSize: '20px' };
 
- // --- THE FULL-SCREEN YELLOW SPINNER OVERLAY ---
-  if (initialLoad) {
-    return (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F9FA' }}>
-        <style>{`
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          .yellow-spinner { border: 4px solid rgba(255, 214, 0, 0.2); width: 48px; height: 48px; border-radius: 50%; border-left-color: #FFD600; animation: spin 0.4s linear infinite; }
-        `}</style>
-        <div className="yellow-spinner"></div>
-        <div style={{ marginTop: '16px', fontSize: '14px', color: '#111', fontWeight: 700, letterSpacing: '1px' }}>LOADING...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100%', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
@@ -136,15 +115,7 @@ export default function Dashboard() {
             <h2 style={{ fontSize: '15px', fontWeight: 700, margin: 0, color: '#111', textTransform: 'uppercase', letterSpacing: '-0.5px' }}>
               Action Required / Log
             </h2>
-            
-            {/* THE WORKING SEARCH BAR */}
-            <input
-              type="text"
-              placeholder="Search alerts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #DDD', fontSize: '13px', width: '220px', outline: 'none', fontFamily: 'monospace' }}
-            />
+            {/* LOCAL SEARCH BAR DELETED FROM HERE */}
           </div>
 
           {filteredActivePatients.length === 0 ? (
@@ -165,7 +136,6 @@ export default function Dashboard() {
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                     <div style={{ color: '#E03131', fontWeight: 800, fontSize: '16px' }}>
-                      {/* FIXING THE DECIMALS HERE */}
                       {Number(reading.temperature).toFixed(1)}<span className="blinking-degree">°</span>C
                     </div>
                     <button onClick={() => handleMarkTreated(reading.id)} style={{ backgroundColor: '#FFF', color: '#111', border: '1px solid #CCC', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontFamily: 'monospace', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}>

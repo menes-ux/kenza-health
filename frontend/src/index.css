@@ -4,7 +4,7 @@
 
 /* Kenza Health - Modern Tasky UI System */
 :root {
-  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   --surface-1: #ffffff; /* Pure white for sidebar, topbar, and cards */
   --surface-2: #f8f9fa; /* Tasky's distinct light-gray canvas */
   --border: #f0f0f0;
@@ -54,10 +54,11 @@ body { font-family: var(--font-sans); background: var(--surface-1); padding: 0; 
 .wrap { display: flex; height: 100%; width: 100%; background: var(--surface-1); }
 
 /* --- SIDEBAR --- */
-.sidebar { width: 260px; background: var(--surface-1); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+.sidebar { width: 260px; background: var(--surface-1); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; border-right: 1px solid #F0F0F0;}
 .logo { padding: 10px 30px 30px; }
 .logo-text { font-size: 26px; font-weight: 800; color: #111111; letter-spacing: -0.5px; }
 .logo-text span { color: var(--accent); }
+.logo-text span { color: var(--accent); border-bottom: 2px solid var(--accent); }
 
 .nav { padding: 10px 0; flex: 1; }
 .nav-item { display: flex; align-items: center; gap: 16px; padding: 14px 30px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
@@ -101,7 +102,7 @@ body { font-family: var(--font-sans); background: var(--surface-1); padding: 0; 
 /* --- CARDS & PANELS --- */
 /* Removed harsh borders, added massive border-radius and soft drop shadows */
 .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
-.s-card { background: var(--surface-1); border: none; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+.s-card { background: var(--surface-1); border: none; border-radius: 24px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04); }
 .s-card-label { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 20px; }
 .s-card-row { display: flex; align-items: center; justify-content: space-between; }
 .s-card-num { font-size: 32px; font-weight: 700; color: var(--text-primary); }
