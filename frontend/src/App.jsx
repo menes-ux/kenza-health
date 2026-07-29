@@ -64,6 +64,7 @@ export default function App() {
           <div 
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
+            style={{ transition: 'all 0.3s ease-in-out', cursor: 'pointer' }}
           >
             <i className="ti ti-layout-dashboard"></i>
             <span>Dashboard</span>
@@ -71,6 +72,7 @@ export default function App() {
           <div 
             className={`nav-item ${activeTab === 'patients' ? 'active' : ''}`}
             onClick={() => setActiveTab('patients')}
+            style={{ transition: 'all 0.3s ease-in-out', cursor: 'pointer' }}
           >
             <i className="ti ti-users"></i>
             <span>Patients</span>
@@ -94,8 +96,11 @@ export default function App() {
                 border: 'none',
                 cursor: 'pointer',
                 color: '#888888',
-                fontSize: '18px'
+                fontSize: '18px',
+                transition: 'color 0.2s ease'
               }}
+              onMouseOver={(e) => e.currentTarget.style.color = '#111'}
+              onMouseOut={(e) => e.currentTarget.style.color = '#888'}
             >
               <i className="ti ti-logout"></i>
             </button>
@@ -115,34 +120,54 @@ export default function App() {
           </div>
 
           <div className="topbar-right">
-            <div className="search">
-              <i className="ti ti-search"></i>
-              <input type="text" placeholder="Search patients or alerts..." />
-            </div>
-            <div className="notif">
-              
-              
-            </div>
+            {/* DUMMY SEARCH BAR AND GHOST NOTIF BOX REMOVED HERE */}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-  {/* The Bell Icon */}
-  <button onClick={() => alert("Feature in development (Phase 2): Push notifications currently routing via SMS gateway.")} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0, fontSize: '24px', color: '#111', display: 'flex', alignItems: 'center' }}>
-    <i className="ti ti-bell"></i>
-  </button>
-  
-  {/* The Avatar */}
-  <img 
-    src="https://ui-avatars.com/api/?name=Kenza+Health&background=FFD600&color=111&rounded=true&bold=true" 
-    alt="Profile" 
-    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid #EAEAEA', cursor: 'pointer' }}
-  />
-</div>
+              {/* The Bell Icon */}
+              <button 
+                onClick={() => alert("Feature in development (Phase 2): Push notifications currently routing via SMS gateway")} 
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  outline: 'none', 
+                  boxShadow: 'none', 
+                  cursor: 'pointer', 
+                  padding: 0, 
+                  fontSize: '24px', 
+                  color: '#111', 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <i className="ti ti-bell"></i>
+              </button>
+                
+              {/* The Avatar */}
+              <img 
+                src="https://ui-avatars.com/api/?name=Kenza+Health&background=FFD600&color=111&rounded=true&bold=true" 
+                alt="Profile" 
+                style={{ 
+                  width: '36px', 
+                  height: '36px', 
+                  borderRadius: '50%', 
+                  border: '2px solid #EAEAEA', 
+                  cursor: 'pointer' 
+                }}
+              />
+            </div>
           </div>
         </header>
 
-        {/* PAGE CANVAS */}
-        {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'patients' && <Patients />}
+          <div style={{ flex: 1, overflowY: 'auto' }}></div>
+
+                  {/* PAGE CANVAS */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'patients' && <Patients />}
+          </div>
       </main>
     </div>
   );

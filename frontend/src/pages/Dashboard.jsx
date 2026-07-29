@@ -91,7 +91,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
+    <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100%', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
       <style>{`
         @keyframes blink { 50% { opacity: 0; } }
         .blinking-degree { animation: blink 1s step-start infinite; }
@@ -150,7 +150,7 @@ export default function Dashboard() {
           {filteredActivePatients.length === 0 ? (
             <div style={{ padding: '10px 0', color: '#888', fontSize: '13px', fontFamily: 'monospace' }}>&gt; No active alerts match your search.</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {filteredActivePatients.map((reading) => (
                 <div key={reading.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderRadius: '8px', borderBottom: '1px solid #F8F9FA', fontFamily: 'monospace', fontSize: '14px' }}>
                   
@@ -159,7 +159,7 @@ export default function Dashboard() {
                     <div style={{ color: '#666' }}>
                       {new Date(reading.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </div>
-                    <div style={{ color: '#111', fontWeight: 600 }}>{reading.patients?.name || 'Unknown'}</div>
+                    <div style={{ color: '#111', fontWeight: 600 }}>{reading.patients?.name || reading.patients?.[0]?.name || 'Unknown'}</div>
                     <div style={{ color: '#888' }}>{reading.patients?.device_id}</div>
                   </div>
                   

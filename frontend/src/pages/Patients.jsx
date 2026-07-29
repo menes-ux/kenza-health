@@ -69,7 +69,7 @@ export default function Patients() {
   );
 
   return (
-    <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100vh', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
+    <div className="fade-in" style={{ backgroundColor: '#F8F9FA', minHeight: '100%', padding: '32px', width: '100%', boxSizing: 'border-box' }}>
       
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         
@@ -140,7 +140,7 @@ export default function Patients() {
           ) : filteredPatients.length === 0 ? (
             <div style={{ padding: '10px 0', color: '#888', fontSize: '13px', fontFamily: 'monospace' }}>&gt; No patient records found.</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '500px', overflowY: 'auto', paddingRight: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {filteredPatients.map((patient) => (
                 <div key={patient.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderRadius: '8px', borderBottom: '1px solid #F8F9FA', fontFamily: 'monospace', fontSize: '14px' }}>
                   
