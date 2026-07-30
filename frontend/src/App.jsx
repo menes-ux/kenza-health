@@ -1,3 +1,4 @@
+import Simulator from './pages/Simulator';
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import Login from './pages/Login';
@@ -56,6 +57,10 @@ export default function App() {
 
   const userEmail = session.user?.email || 'CHW User';
   const username = userEmail.split('@')[0];
+
+  if (window.location.pathname === '/simulator') {
+    return <Simulator />;
+  }
 
   return (
     <div className="wrap">
@@ -121,6 +126,10 @@ export default function App() {
           
         </nav>
 
+        <a href="/simulator" target="_blank" rel="noopener noreferrer" className="sim-btn" style={{ textDecoration: 'none' }}>
+  Simuler le module SIM800L
+</a>
+
         <div className="sidebar-bottom">
           <div className="chw-info" style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -167,9 +176,9 @@ export default function App() {
         </header>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {activeTab === 'dashboard' && <Dashboard globalSearch={globalSearch} />}
-          {activeTab === 'patients' && <Patients globalSearch={globalSearch} />}
-        </div>
+  {activeTab === 'dashboard' && <Dashboard globalSearch={globalSearch} />}
+  {activeTab === 'patients' && <Patients globalSearch={globalSearch} />}
+</div>
       </main>
     </div>
   );
