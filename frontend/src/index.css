@@ -253,3 +253,25 @@ a {
         @keyframes spin {
           100% { transform: rotate(360deg); }
         }
+
+
+        .sim-btn {
+  display: table;
+  width: fit-content;
+  margin: 0 auto 12px auto;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  background: #FCEBEB;
+  border: 1px solid #F5C6C6;
+  color: #C0392B;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.sim-btn:hover {
+  background: #F8D7D7;
+}
