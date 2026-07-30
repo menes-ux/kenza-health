@@ -126,9 +126,10 @@ export default function App() {
           
         </nav>
 
-        <a href="/simulator" target="_blank" rel="noopener noreferrer" className="sim-btn" style={{ textDecoration: 'none' }}>
-  Simuler le module SIM800L
-</a>
+        <div className="nav-item" onClick={() => window.open('/simulator', '_blank')} style={{ cursor: 'pointer', color: '#C0392B' }}>
+  <i className="ti ti-radio" style={{ color: '#C0392B' }}></i>
+  <span>Simuler le module SIM800L</span>
+</div>
 
         <div className="sidebar-bottom">
           <div className="chw-info" style={{ justifyContent: 'space-between' }}>
