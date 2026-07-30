@@ -256,9 +256,9 @@ a {
 
 
         .sim-btn {
-  display: table;
-  width: fit-content;
-  margin: 0 auto 12px auto;
+  display: block;
+  width: calc(100% - 40px);
+  margin: 0 20px 12px 20px;
   font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
   background: #FCEBEB;
   border: 1px solid #F5C6C6;
