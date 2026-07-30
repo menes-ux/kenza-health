@@ -76,6 +76,31 @@ kenza-health/
 
 ---
 
+## Evaluation Guide
+
+### Step 1 — Login (NF1)
+Go to https://kenza-health.vercel.app/ and log in with the evaluator credentials above. This tests the CHW authentication requirement.
+
+### Step 2 — Dashboard (FR5.1, FR5.2)
+The dashboard loads with 5 pre-registered patients. Critical fever cases appear highlighted in red. This tests the real-time patient grid and critical case prioritization.
+
+### Step 3 — SIM800L Simulation (FR1.1, FR1.2, FR2.1)
+Locate the SIM800L_GATEWAY_TERMINAL in the sidebar. Select a patient from the dropdown, enter a temperature of 38.5 or higher, and click EXECUTE TRANSMISSION. This sends a raw payload to the Flask backend, which parses it and checks the fever threshold.
+
+### Step 4 — Alert and SMS Dispatch (FR3.1, FR4.1)
+Return to the Dashboard. A red critical alert appears under the Action requise section. The SMS dispatch is logged in the Render backend console. This tests data persistence and mother alert dispatch.
+
+### Step 5 — Mark as Treated (FR5.3)
+Click RESOLVE on the active alert. It disappears from the feed and is logged as resolved in the database.
+
+### Step 6 — Patient Registration (FR4.1)
+Navigate to the Patients tab. Register a new patient using the form. The record appears instantly in the database feed.
+
+### Step 7 — Responsiveness (NF6, NF7)
+Open the dashboard on a mobile browser or resize the window. The layout adapts across Chrome, Firefox, and Safari.
+
+---
+
 ## Local Setup
 
 ### Prerequisites
