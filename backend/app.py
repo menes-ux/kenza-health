@@ -3,6 +3,9 @@ from flask_cors import CORS
 from supabase import create_client, Client
 
 app = Flask(__name__)
+@app.route('/', methods=['GET'])
+def home():
+    return "Kenza Health API is running live!"
 CORS(app)
 
 SUPABASE_URL = "https://khsoesxaefflzuwhkhrn.supabase.co"
