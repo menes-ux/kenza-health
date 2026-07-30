@@ -15,7 +15,7 @@ const Simulator = () => {
     
     try {
       // Sends data to the Python backend
-      const response = await fetch('http://127.0.0.1:5000/api/sms', {
+      const response = await fetch('https://kenza-health-backend.onrender.com/api/sms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ raw_payload: rawText }),
