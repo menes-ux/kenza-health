@@ -9,25 +9,27 @@ SUPABASE_URL = "https://khsoesxaefflzuwhkhrn.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc29lc3hhZWZmbHp1d2hraHJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNDU5MTUsImV4cCI6MjEwMDgyMTkxNX0.3AtJ6aKwxkVs7UkVvme0FIzaEuGgsHi5hiEPHhjDwZE"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-FEVER_THRESHOLD = 37.5  # Fever threshold in Celsius
+FEVER_THRESHOLD = 37.5  # Fever threshold in °C
 
 def trigger_sms_gateway(phone_number, patient_name, temp):
     """
-    Simulates an SMS Gateway API dispatch (e.g., Twilio / Africa's Talking / Termii)
+    Simulates sending an SMS via a cellular gateway (e.g., Twilio / Africa's Talking)
     """
+    # Emergency message sent to the mother (Kept in French)
     message = (
-        f"🚨 ALERTE KENZA HEALTH: Fièvre détectée ({temp}°C) pour {patient_name}. "
-        f"Un agent de santé du district de Lokossa a été notifié. "
-        f"Veuillez donner de l'eau et rafraîchir l'enfant immédiatement."
+        f"🚨 ALERTE URGENTE KENZA HEALTH : Une fièvre de {temp}°C a été détectée chez votre enfant {patient_name}. "
+        f"L'agent de santé du district de Lokossa a été immédiatement averti. "
+        f"Veuillez donner de l'eau à l'enfant et le garder au frais en attendant la prise en charge."
     )
     
-    print("\n" + "="*60)
-    print("📲 [SMS GATEWAY API DISPATCH]")
-    print(f"   To Carrier    : Moov Benin / MTN Benin (+229)")
-    print(f"   Recipient Phone: {phone_number}")
-    print(f"   Message Body  : {message}")
-    print(f"   Status        : 200 OK (DELIVERED VIA CELLULAR GATEWAY)")
-    print("="*60 + "\n", flush=True)
+    # Clean terminal log display (In English)
+    print("\n" + "="*65)
+    print("📲 [SMS GATEWAY - AUTOMATIC DISPATCH]")
+    print(f"   Carrier Network : Moov Benin / MTN Benin (+229)")
+    print(f"   Recipient Phone : {phone_number}")
+    print(f"   SMS Message Body: {message}")
+    print(f"   Delivery Status : 200 OK (DELIVERED SUCCESSFULLY VIA GSM NETWORK)")
+    print("="*65 + "\n", flush=True)
     
     return {
         "dispatched": True,
@@ -44,38 +46,40 @@ def receive_sms():
         if not raw_text:
             return jsonify({"error": "Missing raw_payload in request"}), 400
 
-        print(f"\n[FR 1.1] HARDWARE PAYLOAD RECEIVED: '{raw_text}'", flush=True)
+        # --- Functional Requirement 1.1 Log ---
+        print(f"\n[FR 1.1] HARDWARE TELEMETRY RECEIVED: '{raw_text}'", flush=True)
         
-        # --- FR 1.2: Parse payload ---
+        # --- Functional Requirement 1.2: Variable Extraction ---
         parts = raw_text.split('|')
         device_id = parts[0].split(':')[1]
         temperature = float(parts[1].split(':')[1])
         location = parts[2].split(':')[1]
         
-        print(f"[FR 1.2] PARSED VARIABLES -> ID: {device_id} | Temp: {temperature}°C | Loc: {location}", flush=True)
+        print(f"[FR 1.2] EXTRACTED DATA -> Device: {device_id} | Temp: {temperature}°C | Location: {location}", flush=True)
         
-        # --- STEP 1: LOOK UP PATIENT DATA ---
-        patient_response = supabase.table("patients").select("id, name, phone_number").eq("device_id", device_id).execute()
+        # --- STEP 1: PATIENT ID LOOKUP ---
+        # Select only 'id' and 'name' to prevent missing column errors in Supabase
+        patient_response = supabase.table("patients").select("id, name").eq("device_id", device_id).execute()
         
         if not patient_response.data:
-            print(f"[ERROR] No patient registered with device ID: {device_id}", flush=True)
-            return jsonify({"error": f"Unknown device: {device_id}"}), 404
+            print(f"[ERROR] No patient registered with Device ID: {device_id}", flush=True)
+            return jsonify({"error": f"Unknown device ID: {device_id}"}), 404
             
         patient = patient_response.data[0]
         patient_id = patient['id']
-        patient_name = patient.get('name', 'Enfant')
-        # Fallback phone number if none registered in DB yet
-        mother_phone = patient.get('phone_number') or "+229 97 12 34 56"
+        patient_name = patient.get('name', 'the child')
+        mother_phone = "+229 97 12 34 56"  # Fallback phone number for MVP demo
         
-        # --- STEP 2: INSERT READING TO SUPABASE ---
+        # --- STEP 2: SAVE READING TO SUPABASE ---
         data_to_insert = {
             "patient_id": patient_id, 
             "temperature": temperature,
             "is_resolved": False
         }
         supabase.table("readings").insert(data_to_insert).execute()
+        print("[SUCCESS] Reading successfully recorded in Supabase database!", flush=True)
         
-        # --- STEP 3: AUTOMATIC URGENT CARE SMS DISPATCH ---
+        # --- STEP 3: AUTOMATIC SMS DISPATCH ON FEVER DETECTED ---
         sms_info = None
         if temperature >= FEVER_THRESHOLD:
             sms_info = trigger_sms_gateway(mother_phone, patient_name, temperature)
